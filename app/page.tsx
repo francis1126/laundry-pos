@@ -70,8 +70,20 @@ export default function LaundryPOS() {
   }, [router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    console.log('Logout button clicked');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        alert('Error logging out: ' + error.message);
+      } else {
+        console.log('Logout successful');
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error('Logout exception:', err);
+      alert('An error occurred during logout');
+    }
   };
 
   const resetForm = () => {
