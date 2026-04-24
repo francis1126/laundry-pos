@@ -44,14 +44,36 @@ export default function LaundryPOS() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await fetchOrders();
-      } else {
+      try {
+        // Add timeout to prevent infinite loading
+        const timeout = setTimeout(() => {
+          console.error('Auth check timeout - redirecting to login');
+          setLoading(false);
+          router.push('/login');
+        }, 10000); // 10 second timeout
+
+        const { data: { session }, error } = await supabase.auth.getSession();
+        clearTimeout(timeout);
+
+        if (error) {
+          console.error('Auth check error:', error);
+          setLoading(false);
+          router.push('/login');
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+          await fetchOrders();
+        } else {
+          router.push('/login');
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth check exception:', error);
+        setLoading(false);
         router.push('/login');
       }
-      setLoading(false);
     };
 
     checkAuth();

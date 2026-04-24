@@ -122,7 +122,7 @@ export default function Receipt({ order, onClose }: ReceiptProps) {
             {/* Footer */}
             <div className="mt-6 pt-4 border-t border-gray-300 text-center">
               <p className="text-xs text-gray-700 mb-2">Thank you for your business!</p>
-              <p className="text-xs text-gray-600">Please keep this receipt for your records</p>
+              <p className="text-xs text-gray-600">Please keep this receipt for your records.</p>
               <div className="mt-4 space-y-1">
                 <p className="text-xs text-gray-600">Payment Terms: Cash </p>
                 
