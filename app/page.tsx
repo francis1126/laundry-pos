@@ -275,13 +275,13 @@ export default function LaundryPOS() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Laundry POS Dashboard</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Laundry POS</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="hidden sm:inline text-sm text-gray-600">Welcome, {user.email}</span>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                className="bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
               >
                 Logout
               </button>
@@ -293,10 +293,10 @@ export default function LaundryPOS() {
       {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+          <nav className="-mb-px flex space-x-4 sm:space-x-8">
             <button
               onClick={() => { setActiveView('create'); resetForm(); }}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm ${
                 activeView === 'create'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -306,7 +306,7 @@ export default function LaundryPOS() {
             </button>
             <button
               onClick={() => setActiveView('view')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm ${
                 activeView === 'view'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -327,10 +327,10 @@ export default function LaundryPOS() {
               <h3 className="text-lg leading-6 font-medium text-black mb-4">
                 {editingOrder ? 'Edit Order' : 'Create New Order'}
               </h3>
-              <form onSubmit={handleCreateOrder} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <form onSubmit={handleCreateOrder} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="customerName" className="block text-sm font-medium text-black">
+                    <label htmlFor="customerName" className="block text-sm font-medium text-black mb-1">
                       Customer Name *
                     </label>
                     <input
@@ -338,13 +338,13 @@ export default function LaundryPOS() {
                       id="customerName"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="customerContact" className="block text-sm font-medium text-black">
+                    <label htmlFor="customerContact" className="block text-sm font-medium text-black mb-1">
                       Contact Number *
                     </label>
                     <input
@@ -352,13 +352,13 @@ export default function LaundryPOS() {
                       id="customerContact"
                       value={customerContact}
                       onChange={(e) => setCustomerContact(e.target.value)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       required
                     />
                   </div>
                   
                   <div className="sm:col-span-2">
-                    <label htmlFor="customerAddress" className="block text-sm font-medium text-black">
+                    <label htmlFor="customerAddress" className="block text-sm font-medium text-black mb-1">
                       Address *
                     </label>
                     <textarea
@@ -366,13 +366,13 @@ export default function LaundryPOS() {
                       value={customerAddress}
                       onChange={(e) => setCustomerAddress(e.target.value)}
                       rows={3}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="weight" className="block text-sm font-medium text-black">
+                    <label htmlFor="weight" className="block text-sm font-medium text-black mb-1">
                       Weight (kg) *
                     </label>
                     <input
@@ -382,13 +382,13 @@ export default function LaundryPOS() {
                       min="0.1"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-black">
+                    <label htmlFor="price" className="block text-sm font-medium text-black mb-1">
                       Total Price (PHP) *
                     </label>
                     <input
@@ -398,20 +398,20 @@ export default function LaundryPOS() {
                       min="0"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-black">
+                    <label htmlFor="status" className="block text-sm font-medium text-black mb-1">
                       Order Status
                     </label>
                     <select
                       id="status"
                       value={status}
                       onChange={(e) => setStatus(e.target.value as any)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     >
                       <option value="Pending">Pending</option>
                       <option value="In Progress">In Progress</option>
@@ -468,87 +468,146 @@ export default function LaundryPOS() {
                   </div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Customer
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Contact
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Weight
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {orders.map((order) => (
-                        <tr key={order.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-black">{order.customer.name}</div>
-                            <div className="text-sm text-gray-900">{order.customer.address}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                            {order.customer.contact_number}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                            {order.weight} kg
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                            PHP {order.total_price.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              order.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                              order.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
-                              order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => handleEditOrder(order)}
-                              className="text-blue-600 hover:text-blue-900 mr-3"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => setSelectedOrderForReceipt(order)}
-                              className="text-green-600 hover:text-green-900 mr-3"
-                            >
-                              Print
-                            </button>
-                            <button
-                              onClick={() => handleDeleteOrder(order.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
-                          </td>
+                <>
+                  {/* Mobile Card Layout */}
+                  <div className="sm:hidden space-y-4">
+                    {orders.map((order) => (
+                      <div key={order.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h4 className="text-sm font-bold text-black">{order.customer.name}</h4>
+                            <p className="text-xs text-gray-600">{order.customer.contact_number}</p>
+                          </div>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            order.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                            order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Weight:</span>
+                            <span className="text-black font-medium">{order.weight} kg</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Price:</span>
+                            <span className="text-black font-medium">PHP {order.total_price.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Date:</span>
+                            <span className="text-black">{new Date(order.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-gray-200 flex justify-end space-x-2">
+                          <button
+                            onClick={() => handleEditOrder(order)}
+                            className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => setSelectedOrderForReceipt(order)}
+                            className="px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded hover:bg-green-100"
+                          >
+                            Print
+                          </button>
+                          <button
+                            onClick={() => handleDeleteOrder(order.id)}
+                            className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table Layout */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Customer
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Contact
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Weight
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Price
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                            Actions
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {orders.map((order) => (
+                          <tr key={order.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-black">{order.customer.name}</div>
+                              <div className="text-sm text-gray-900">{order.customer.address}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                              {order.customer.contact_number}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                              {order.weight} kg
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                              PHP {order.total_price.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                order.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                                order.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                                order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => handleEditOrder(order)}
+                                className="text-blue-600 hover:text-blue-900 mr-3"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => setSelectedOrderForReceipt(order)}
+                                className="text-green-600 hover:text-green-900 mr-3"
+                              >
+                                Print
+                              </button>
+                              <button
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
