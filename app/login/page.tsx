@@ -15,18 +15,27 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    console.log('Attempting login with email:', email);
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log('Login result:', { data: !!data, error: error?.message });
+
       if (error) {
+        console.error('Login error:', error);
         setError(error.message);
       } else {
+        console.log('Login successful, redirecting to dashboard');
         router.push('/');
       }
     } catch (err) {
+      console.error('Login exception:', err);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
