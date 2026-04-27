@@ -44,8 +44,14 @@ export default function LaundryPOS() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('Starting auth check...');
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
+
+        console.log('Auth check result:', { session: !!session, error: error?.message });
 
         if (error) {
           console.error('Auth check error:', error);
@@ -58,6 +64,7 @@ export default function LaundryPOS() {
           setUser(session.user);
           await fetchOrders();
         } else {
+          console.log('No session found, redirecting to login');
           router.push('/login');
         }
         setLoading(false);
@@ -68,7 +75,14 @@ export default function LaundryPOS() {
       }
     };
 
-    checkAuth();
+    // Add a safety timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      console.error('Auth check taking too long - forcing redirect to login');
+      setLoading(false);
+      router.push('/login');
+    }, 15000); // 15 second safety timeout
+
+    checkAuth().finally(() => clearTimeout(timeout));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
