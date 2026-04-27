@@ -45,15 +45,7 @@ export default function LaundryPOS() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Add timeout to prevent infinite loading - increased to 30 seconds
-        const timeout = setTimeout(() => {
-          console.error('Auth check timeout - redirecting to login');
-          setLoading(false);
-          router.push('/login');
-        }, 30000); // 30 second timeout
-
         const { data: { session }, error } = await supabase.auth.getSession();
-        clearTimeout(timeout);
 
         if (error) {
           console.error('Auth check error:', error);

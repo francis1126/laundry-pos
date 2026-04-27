@@ -24,14 +24,7 @@ export default function ExpensesPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const timeout = setTimeout(() => {
-          console.error('Auth check timeout - redirecting to login');
-          setLoading(false);
-          router.push('/login');
-        }, 30000);
-
         const { data: { session } } = await supabase.auth.getSession();
-        clearTimeout(timeout);
 
         if (session?.user) {
           setUser(session.user);
