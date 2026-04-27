@@ -23,7 +23,7 @@ export default function Receipt({ order, onClose }: ReceiptProps) {
 
   return (
     <>
-      <style jsx global>{`
+      <style>{`
         @media print {
           body * {
             visibility: hidden;
@@ -37,6 +37,7 @@ export default function Receipt({ order, onClose }: ReceiptProps) {
             top: 0;
             width: 100%;
             padding: 20px;
+            background: white;
           }
           .no-print {
             display: none !important;
