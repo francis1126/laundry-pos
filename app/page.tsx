@@ -43,53 +43,17 @@ export default function LaundryPOS() {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log('Starting auth check...');
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-      console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        console.log('Auth check result:', { session: !!session, error: error?.message });
-
-        if (error) {
-          console.error('Auth check error:', error);
-          setLoading(false);
-          router.push('/login');
-          return;
-        }
-
-        if (session?.user) {
-          setUser(session.user);
-          await fetchOrders();
-        } else {
-          console.log('No session found, redirecting to login');
-          router.push('/login');
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Auth check exception:', error);
-        setLoading(false);
-        router.push('/login');
-      }
-    };
-
-    // Add a safety timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      console.error('Auth check taking too long - forcing redirect to login');
-      setLoading(false);
-      router.push('/login');
-    }, 15000); // 15 second safety timeout
-
-    checkAuth().finally(() => clearTimeout(timeout));
-
+    // Use auth state change listener instead of getSession to avoid timeout issues
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('Auth state changed:', { event: _event, hasSession: !!session });
+
       if (session?.user) {
         setUser(session.user);
         await fetchOrders();
+        setLoading(false);
       } else {
         setUser(null);
+        setLoading(false);
         router.push('/login');
       }
     });
