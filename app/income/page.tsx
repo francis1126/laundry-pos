@@ -129,10 +129,13 @@ export default function IncomePage() {
     const filteredOrders = getFilteredOrders();
     const filteredExpenses = getFilteredExpenses();
 
-    const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total_price, 0);
+    // Only include completed orders in income calculation
+    const completedOrders = filteredOrders.filter(order => order.status === 'Completed');
+
+    const totalRevenue = completedOrders.reduce((sum, order) => sum + order.total_price, 0);
     const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     const netIncome = totalRevenue - totalExpenses;
-    const orderCount = filteredOrders.length;
+    const orderCount = completedOrders.length;
 
     return {
       totalRevenue,

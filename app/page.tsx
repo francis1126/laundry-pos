@@ -430,7 +430,7 @@ export default function LaundryPOS() {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm text-gray-600">Total Revenue</p>
-                    <p className="text-2xl font-bold text-black">PHP {orders.reduce((sum, o) => sum + o.total_price, 0).toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-black">PHP {orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + o.total_price, 0).toFixed(2)}</p>
                   </div>
                 </div>
               </div>
