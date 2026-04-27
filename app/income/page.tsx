@@ -42,6 +42,21 @@ export default function IncomePage() {
     checkAuth();
   }, [router, period, selectedDate]);
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        alert('Error logging out: ' + error.message);
+      } else {
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error('Logout exception:', err);
+      alert('An error occurred during logout');
+    }
+  };
+
   const fetchData = async () => {
     try {
       const [ordersData, expensesData] = await Promise.all([
@@ -183,6 +198,12 @@ export default function IncomePage() {
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
                 Back to Dashboard
+              </button>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Logout
               </button>
             </div>
           </div>

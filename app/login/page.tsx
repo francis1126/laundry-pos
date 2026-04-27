@@ -133,7 +133,7 @@ export default function LoginPage() {
         
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            © 2024 Laundry POS System. All rights reserved.
+            © Made by Francis Lacsamana
           </p>
         </div>
       </div>

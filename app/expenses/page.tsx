@@ -50,6 +50,21 @@ export default function ExpensesPage() {
     checkAuth();
   }, [router]);
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        alert('Error logging out: ' + error.message);
+      } else {
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error('Logout exception:', err);
+      alert('An error occurred during logout');
+    }
+  };
+
   const fetchExpenses = async () => {
     try {
       const { data, error } = await supabase
@@ -192,6 +207,12 @@ export default function ExpensesPage() {
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
                 Back to Dashboard
+              </button>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Logout
               </button>
               <button
                 onClick={() => { resetForm(); setShowForm(true); }}
