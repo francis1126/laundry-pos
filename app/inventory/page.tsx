@@ -199,26 +199,23 @@ export default function InventoryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Inventory Management</h1>
+              <h1 className="text-l sm:text-xl font-bold text-gray-900">Inventory Management</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-gray-600 hover:text-gray-900"
+               className="bg-blue-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              
               >
-                Back to Dashboard
+                 Dashboard
               </button>
+              
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="bg-red-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              
               >
                 Logout
-              </button>
-              <button
-                onClick={() => { resetForm(); setShowForm(true); }}
-                className="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
-              >
-                Add Item
               </button>
             </div>
           </div>
@@ -344,6 +341,8 @@ export default function InventoryPage() {
                   >
                     {editingItem ? 'Update' : 'Add'}
                   </button>
+                  
+                  
                 </div>
               </form>
             </div>
@@ -359,6 +358,7 @@ export default function InventoryPage() {
               <div className="text-center py-12">
                 <p className="text-sm text-gray-900">No inventory items yet. Add your first item to get started.</p>
               </div>
+              
             ) : (
               <>
                 {/* Mobile Card Layout */}
@@ -401,20 +401,29 @@ export default function InventoryPage() {
                         </button>
                         <button
                           onClick={() => handleEdit(item)}
-                          className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-100"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100"
+                          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-100 rounded hover:bg-red-100"
                         >
                           Delete
                         </button>
+                        <button
+                onClick={() => { resetForm(); setShowForm(true); }}
+                className="bg-blue-500 text-white px-5 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              >
+                Add Item
+              </button>
+                        
+                        
                       </div>
                     </div>
                   ))}
                 </div>
+                
 
                 {/* Desktop Table Layout */}
                 <div className="hidden sm:block overflow-x-auto">
@@ -460,12 +469,15 @@ export default function InventoryPage() {
                             >
                               Edit
                             </button>
+                            
                             <button
                               onClick={() => handleDelete(item.id)}
                               className="text-red-600 hover:text-red-900"
                             >
                               Delete
                             </button>
+                            
+                            
                           </td>
                         </tr>
                       ))}
@@ -480,3 +492,4 @@ export default function InventoryPage() {
     </main>
   );
 }
+

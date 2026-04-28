@@ -10,6 +10,7 @@ export interface Order {
   customer_id: string;
   customer: Customer;
   weight: number;
+  loads: number;
   total_price: number;
   status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
   created_at: string;

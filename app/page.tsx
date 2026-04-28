@@ -19,6 +19,7 @@ export default function LaundryPOS() {
   const [customerAddress, setCustomerAddress] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [weight, setWeight] = useState('');
+  const [loads, setLoads] = useState('');
   const [price, setPrice] = useState('');
   const [status, setStatus] = useState<'Pending' | 'In Progress' | 'Completed' | 'Cancelled'>('Pending');
 
@@ -83,9 +84,60 @@ export default function LaundryPOS() {
     setCustomerAddress('');
     setCustomerContact('');
     setWeight('');
+    setLoads('');
     setPrice('');
     setStatus('Pending');
     setEditingOrder(null);
+  };
+
+  const getLoadsByPeriod = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startOfDay = new Date(today);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const startOfWeek = new Date(today);
+    const dayOfWeek = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    startOfWeek.setDate(diff);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    const completedOrders = orders.filter(o => o.status === 'Completed');
+
+    const dailyLoads = completedOrders
+      .filter(o => {
+        const orderDate = new Date(o.created_at);
+        return orderDate >= startOfDay && orderDate <= endOfDay;
+      })
+      .reduce((sum, o) => sum + (o.loads || 0), 0);
+
+    const weeklyLoads = completedOrders
+      .filter(o => {
+        const orderDate = new Date(o.created_at);
+        return orderDate >= startOfWeek && orderDate <= endOfWeek;
+      })
+      .reduce((sum, o) => sum + (o.loads || 0), 0);
+
+    const monthlyLoads = completedOrders
+      .filter(o => {
+        const orderDate = new Date(o.created_at);
+        return orderDate >= startOfMonth && orderDate <= endOfMonth;
+      })
+      .reduce((sum, o) => sum + (o.loads || 0), 0);
+
+    return { dailyLoads, weeklyLoads, monthlyLoads };
   };
 
   const handleCreateOrder = async (e: FormEvent<HTMLFormElement>) => {
@@ -96,12 +148,13 @@ export default function LaundryPOS() {
       customerAddress,
       customerContact,
       weight,
+      loads,
       price,
       status
     });
 
     // Validate required fields
-    if (!customerName || !customerAddress || !customerContact || !weight || !price) {
+    if (!customerName || !customerAddress || !customerContact || !weight || !loads || !price) {
       alert("Please fill in all required fields");
       return;
     }
@@ -131,6 +184,7 @@ export default function LaundryPOS() {
       const orderData = {
         customer_id: customer.id,
         weight: parseFloat(weight),
+        loads: parseInt(loads),
         total_price: parseFloat(price),
         status: status
       };
@@ -245,10 +299,16 @@ export default function LaundryPOS() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Laundry POS</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Fatima's Laundry Hub</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <span className="hidden sm:inline text-sm text-gray-600">Welcome, {user.email}</span>
+                <button
+                onClick={() => setActiveView('dashboard')}
+                className="bg-blue-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              >
+                 Dashboard
+              </button>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
@@ -260,67 +320,9 @@ export default function LaundryPOS() {
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex flex-wrap space-x-2 sm:space-x-8">
-            <button
-              onClick={() => setActiveView('dashboard')}
-              className={`py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm ${
-                activeView === 'dashboard'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => { setActiveView('create'); resetForm(); }}
-              className={`py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm ${
-                activeView === 'create'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {editingOrder ? 'Edit Order' : 'Create Order'}
-            </button>
-            <button
-              onClick={() => setActiveView('view')}
-              className={`py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm ${
-                activeView === 'view'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              View Orders ({orders.length})
-            </button>
-            <button
-              onClick={() => router.push('/inventory')}
-              className="py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            >
-              Inventory
-            </button>
-            <button
-              onClick={() => router.push('/expenses')}
-              className="py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            >
-              Expenses
-            </button>
-            <button
-              onClick={() => router.push('/payroll')}
-              className="py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            >
-              Payroll
-            </button>
-            <button
-              onClick={() => router.push('/income')}
-              className="py-3 px-2 sm:py-2 sm:px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            >
-              Income
-            </button>
-          </nav>
-        </div>
-      </div>
+       
+
+     
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -333,8 +335,70 @@ export default function LaundryPOS() {
               <p className="text-gray-600">Here's an overview of your business today.</p>
             </div>
 
+            <div className="bg-white shadow rounded-lg p-6">
+              <h3 className="text-lg font-medium text-black mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+                <button
+                  onClick={() => { setActiveView('create'); resetForm(); }}
+                  className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create Order
+                </button>
+                <button
+                  onClick={() => setActiveView('view')}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  View Orders ({orders.length})
+                </button>
+                <button
+                  onClick={() => router.push('/income')}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Income Report
+                </button>
+                <button
+                  onClick={() => router.push('/inventory')}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  Inventory
+                </button>
+                <button
+                  onClick={() => router.push('/expenses')}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Expenses
+                </button>
+                <button
+              onClick={() => router.push('/payroll')}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+              Payroll
+            </button>
+                
+              </div>
+            </div>
+
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="bg-white shadow rounded-lg p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -398,50 +462,45 @@ export default function LaundryPOS() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-medium text-black mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button
-                  onClick={() => { setActiveView('create'); resetForm(); }}
-                  className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Create Order
-                </button>
-                <button
-                  onClick={() => setActiveView('view')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  View Orders
-                </button>
-                <button
-                  onClick={() => router.push('/inventory')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                  Inventory
-                </button>
-                <button
-                  onClick={() => router.push('/income')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Income Report
-                </button>
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-600">Total Loads</p>
+                    <p className="text-2xl font-bold text-black">{orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.loads || 0), 0)}</p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Loads Statistics */}
+            <div className="bg-white shadow rounded-lg p-6">
+              <h3 className="text-lg font-medium text-black mb-4">Loads Statistics (Completed Orders Only)</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Today's Loads</p>
+                  <p className="text-3xl font-bold text-blue-600">{getLoadsByPeriod().dailyLoads}</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">This Week's Loads</p>
+                  <p className="text-3xl font-bold text-green-600">{getLoadsByPeriod().weeklyLoads}</p>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">This Month's Loads</p>
+                  <p className="text-3xl font-bold text-purple-600">{getLoadsByPeriod().monthlyLoads}</p>
+                </div>
+              </div>
+            </div>
+
+           {/* Quick Actions */}
+            
 
             {/* Recent Orders */}
             <div className="bg-white shadow rounded-lg">
@@ -555,7 +614,23 @@ export default function LaundryPOS() {
                       required
                     />
                   </div>
-                  
+
+                  <div>
+                    <label htmlFor="loads" className="block text-sm font-medium text-black mb-1">
+                      Number of Loads *
+                    </label>
+                    <input
+                      type="number"
+                      id="loads"
+                      step="1"
+                      min="1"
+                      value={loads}
+                      onChange={(e) => setLoads(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      required
+                    />
+                  </div>
+
                   <div>
                     <label htmlFor="price" className="block text-sm font-medium text-black mb-1">
                       Total Price (PHP) *

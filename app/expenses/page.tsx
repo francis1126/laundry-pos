@@ -192,26 +192,23 @@ export default function ExpensesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Expenses Tracking</h1>
+              <h1 className="text-xl sm:text-xl font-bold text-gray-900">Expense Tracking</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="bg-blue-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
               >
-                Back to Dashboard
+                 Dashboard
               </button>
+              
+              
+
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="bg-red-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
               >
                 Logout
-              </button>
-              <button
-                onClick={() => { resetForm(); setShowForm(true); }}
-                className="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
-              >
-                Add Expense
               </button>
             </div>
           </div>
@@ -343,9 +340,20 @@ export default function ExpensesPage() {
             <h3 className="text-lg leading-6 font-medium text-black mb-4">Expenses List</h3>
             
             {expenses.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-8">
                 <p className="text-sm text-gray-900">No expenses recorded yet. Add your first expense to get started.</p>
+                
+                <div className="flex justify-end mt-10">
+                <button
+                onClick={() => { resetForm(); setShowForm(true); }}
+                className="bg-blue-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              >
+                Add Expenses
+              </button>
               </div>
+              </div>
+              
+              
             ) : (
               <>
                 {/* Mobile Card Layout */}

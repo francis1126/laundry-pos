@@ -191,13 +191,15 @@ export default function IncomePage() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="bg-blue-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              
               >
-                Back to Dashboard
+                Dashboard
               </button>
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="bg-red-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              
               >
                 Logout
               </button>
