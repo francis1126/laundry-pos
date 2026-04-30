@@ -7,6 +7,7 @@ import { Expense } from '@/types';
 export default function ExpensesPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'employee'>('employee');
   const [loading, setLoading] = useState(true);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -28,6 +29,15 @@ export default function ExpensesPage() {
 
         if (session?.user) {
           setUser(session.user);
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
+
+          // Redirect employees away from admin-only pages
+          if (role === 'employee') {
+            router.push('/');
+            return;
+          }
+
           await fetchExpenses();
         } else {
           router.push('/login');
@@ -58,13 +68,52 @@ export default function ExpensesPage() {
     }
   };
 
+  const fetchUserRole = async (userId: string): Promise<'admin' | 'employee'> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // If no profile exists, create one with admin role
+        if (error.code === 'PGRST116') {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            await supabase
+              .from('user_profiles')
+              .insert([{ id: userId, email: userData.user.email, role: 'admin' }]);
+            setUserRole('admin');
+            return 'admin';
+          } else {
+            setUserRole('admin');
+            return 'admin';
+          }
+        } else {
+          setUserRole('admin');
+          return 'admin';
+        }
+      } else if (data) {
+        setUserRole(data.role);
+        return data.role;
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setUserRole('admin');
+      return 'admin';
+    }
+    return 'employee';
+  };
+
   const fetchExpenses = async () => {
     try {
       const { data, error } = await supabase
         .from('expenses')
         .select('*')
         .order('expense_date', { ascending: false });
-      
+
       if (error) throw error;
       setExpenses(data || []);
     } catch (err) {

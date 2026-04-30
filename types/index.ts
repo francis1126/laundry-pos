@@ -5,6 +5,14 @@ export interface Customer {
   contact_number: string;
 }
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  role: 'admin' | 'employee';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Order {
   id: string;
   customer_id: string;
@@ -13,6 +21,7 @@ export interface Order {
   loads: number;
   total_price: number;
   status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+  created_by?: string;
   created_at: string;
 }
 

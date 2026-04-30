@@ -7,6 +7,7 @@ import Receipt from '@/components/Receipt';
 
 export default function LaundryPOS() {
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'employee'>('employee');
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'view'>('dashboard');
@@ -43,6 +44,39 @@ export default function LaundryPOS() {
     }
   };
 
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // If no profile exists, create one with admin role
+        if (error.code === 'PGRST116') {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            await supabase
+              .from('user_profiles')
+              .insert([{ id: userId, email: userData.user.email, role: 'admin' }]);
+            setUserRole('admin');
+          } else {
+            setUserRole('admin');
+          }
+        } else {
+          setUserRole('admin');
+        }
+      } else if (data) {
+        setUserRole(data.role);
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setUserRole('admin');
+    }
+  };
+
   useEffect(() => {
     // Use auth state change listener instead of getSession to avoid timeout issues
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -50,10 +84,12 @@ export default function LaundryPOS() {
 
       if (session?.user) {
         setUser(session.user);
+        await fetchUserRole(session.user.id);
         await fetchOrders();
         setLoading(false);
       } else {
         setUser(null);
+        setUserRole('employee');
         setLoading(false);
         router.push('/login');
       }
@@ -186,6 +222,7 @@ export default function LaundryPOS() {
         weight: parseFloat(weight),
         loads: parseInt(loads),
         total_price: parseFloat(price),
+        created_by: user?.id,
         status: status
       };
 
@@ -357,42 +394,47 @@ export default function LaundryPOS() {
                   </svg>
                   View Orders ({orders.length})
                 </button>
-                <button
-                  onClick={() => router.push('/income')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Income Report
-                </button>
-                <button
-                  onClick={() => router.push('/inventory')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                  Inventory
-                </button>
-                <button
-                  onClick={() => router.push('/expenses')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Expenses
-                </button>
-                <button
-              onClick={() => router.push('/payroll')}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-              Payroll
-            </button>
+
+                {userRole === 'admin' && (
+                  <>
+                    <button
+                      onClick={() => router.push('/income')}
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Income Report
+                    </button>
+                    <button
+                      onClick={() => router.push('/inventory')}
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      Inventory
+                    </button>
+                    <button
+                      onClick={() => router.push('/expenses')}
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Expenses
+                    </button>
+                    <button
+                      onClick={() => router.push('/payroll')}
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Payroll
+                    </button>
+                  </>
+                )}
                 
               </div>
             </div>
@@ -499,8 +541,7 @@ export default function LaundryPOS() {
               </div>
             </div>
 
-           {/* Quick Actions */}
-            
+          
 
             {/* Recent Orders */}
             <div className="bg-white shadow rounded-lg">
@@ -758,12 +799,14 @@ export default function LaundryPOS() {
                           >
                             Print
                           </button>
-                          <button
-                            onClick={() => handleDeleteOrder(order.id)}
-                            className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100"
-                          >
-                            Delete
-                          </button>
+                          {userRole === 'admin' && (
+                            <button
+                              onClick={() => handleDeleteOrder(order.id)}
+                              className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -839,12 +882,14 @@ export default function LaundryPOS() {
                               >
                                 Print
                               </button>
-                              <button
-                                onClick={() => handleDeleteOrder(order.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
+                              {userRole === 'admin' && (
+                                <button
+                                  onClick={() => handleDeleteOrder(order.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Delete
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}

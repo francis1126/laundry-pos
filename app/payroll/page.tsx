@@ -7,6 +7,7 @@ import { Employee, Payroll } from '@/types';
 export default function PayrollPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'employee'>('employee');
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [payroll, setPayroll] = useState<Payroll[]>([]);
@@ -40,6 +41,15 @@ export default function PayrollPage() {
 
         if (session?.user) {
           setUser(session.user);
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
+
+          // Redirect employees away from admin-only pages
+          if (role === 'employee') {
+            router.push('/');
+            return;
+          }
+
           await fetchEmployees();
           await fetchPayroll();
         } else {
@@ -69,6 +79,45 @@ export default function PayrollPage() {
       console.error('Logout exception:', err);
       alert('An error occurred during logout');
     }
+  };
+
+  const fetchUserRole = async (userId: string): Promise<'admin' | 'employee'> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // If no profile exists, create one with admin role
+        if (error.code === 'PGRST116') {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            await supabase
+              .from('user_profiles')
+              .insert([{ id: userId, email: userData.user.email, role: 'admin' }]);
+            setUserRole('admin');
+            return 'admin';
+          } else {
+            setUserRole('admin');
+            return 'admin';
+          }
+        } else {
+          setUserRole('admin');
+          return 'admin';
+        }
+      } else if (data) {
+        setUserRole(data.role);
+        return data.role;
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setUserRole('admin');
+      return 'admin';
+    }
+    return 'employee';
   };
 
   const fetchEmployees = async () => {
